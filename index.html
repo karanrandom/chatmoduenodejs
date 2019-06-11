@@ -58,15 +58,15 @@
   var olduserid =userid; 
   if(userid=='' || olduserid!=userid)
   {
-    //alert('hello1');
+
     localStorage.setItem('olduserid', olduserid);
 }
 else{
-    //alert('hello');
+ 
     localStorage.setItem('olduserid', olduserid);
 }
          
-          // showusernames(username,userid,olduserid);
+         
             var message="welcome to chat module";
             insertMessage(username, message,userid);
             
@@ -149,30 +149,23 @@ filed='<li id="'+ userid +'" onclick="connectRoom('+userid+','+olduserid+')" >'+
 
 $('#users').append(filed);
 
+var liText = '', liList = $('#users li'), listForRemove = [];
+
+$(liList).each(function () {
+    
+  var text = $(this).text();
+
+  if (liText.indexOf('|'+ text + '|') == -1)
+    liText += '|'+ text + '|';
+  else
+    listForRemove.push($(this));
+    
+});
+$(listForRemove).each(function () { $(this).remove(); });
+}
 
 }
 
-//  function showusername(username,userid,olduserid){
-
-//                console.log(userid);
-//                console.log('okl');
-//                console.log(olduserid);
-//         var filed;
-//  $('#users').html();     
-// filed='<li id="'+ userid +'" onclick="connectRoom('+userid+','+olduserid+')" >'+ username +'</li>';
-// // console.log(filed);
-
-
-
-// if($('.users').first().text()!=filed){
-//     console.log('jj');
-// $('#users').append(filed);
-// }
-
-
-// //$('#users').show();
-
-//}
   function connectRoom(userid,sendTo){
                     var data;
                 if (userid<sendTo) {
