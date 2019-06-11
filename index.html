@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Real-time Super Chat!</title>
+        <style>
+            #chat_zone strong {
+                color: white;
+                background-color: black;
+                padding: 2px;
+            }
+        </style>
+    </head>
+ 
+    <body>
+        <h1>Real-time Super Chat!</h1>
+        <ul id="users">
+          <!--<li id="3" onclick="connectRoom(3,5)">random</li>-->
+             <!--  <li id="2" onclick="connectRoom(2,1)">Jeet</li>
+            <li id ="5" onclick="connectRoom(5,1)">karan</li> -->
+        
+
+
+        </ul>
+        <form method="get" id="chat_form">
+            <!--<input type="text" name="userid" id="userid" placeholder="Your userid..."  autofocus >-->
+            <input type="text" name="message" id="message" placeholder="Your message..." size="50" autofocus >
+            <input type="button" id="send_message" value="Send" >
+
+        </form>
+
+        <section id="chat_zone">
+            
+    <!--              <form action="/" method="post" id="chat_form_one">
+            <input type="text" name="message_one" id="message_one" placeholder="Your message..." size="50" autofocus />
+            <input type="submit" id="send_message_one" value="Sendprivatechat" />
+
+                   </form> -->
+        </section>
+<!-- 
+ <input type="button" id="private_chat" value="Private Chat" /> -->
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+                $('#chat_form_one').hide();
+            // Connecting to socket.io
+            var socket = io.connect('http://localhost:8080');
+//             var io = io.listen(server);
+//              var id =io.clients[sessionID];
+// console.log(id);
+            //The username is requested, sent to the server and displayed in the title
+            var username = prompt('What\'s your username?');
+            var userid = prompt('Enter your Userid');
+
+
+       
+  var olduserid =userid; 
+  if(userid=='' || olduserid!=userid)
+  {
+    //alert('hello1');
+    localStorage.setItem('olduserid', olduserid);
+}
+else{
+    //alert('hello');
+    localStorage.setItem('olduserid', olduserid);
+}
+         
+          // showusernames(username,userid,olduserid);
+            var message="welcome to chat module";
+            insertMessage(username, message,userid);
+            
+            socket.emit('new_client', username,userid);
+            document.title = username + ' - ' + document.title;
+
+            // When a message is received it's inserted in the page
+            socket.on('messageReturn', function(data) {
+                console.log(data.userid);
+                console.log('hello');
+                messageafterconnect(data.username, data.message);
+            })
+            socket.on('connectroom',function(data){
+   
+                chatMessage(data,data.user_id);
+            })
+
+            // When a new client connects, the information is displayed
+            socket.on('new_client', function(allusername,alluserid) {
+                    $('#chat_zone').prepend('<p><em>' + allusername + ' has joined the chat!</em></p>');
+                    console.log('hello');
+                     showusername(allusername,alluserid);
+            })
+
+            // When the form is sent, the message is sent and displayed on the page
+            // $('#private_chat').click(function () {
+            //     socket.on('private_chat',userid);
+            //     $('#chat_form').hide();
+            //     $('#chat_form_one').show();
+              
+            // });
+            
+             //$('#chat_form_one').submit(function () {
+               // var message = $('#send_message_one').val();
+               // socket.emit('message', message); // Sends the message to the others
+                //insertMessage(username, message); // Also displays the message on our page
+                //$('#message').val('').focus(); // Empties the chat form and puts the focus back on it
+                //return false; // Blocks 'classic' sending of the form
+           // });
+
+
+
+
+             $('#send_message').click(function () {
+                var message = $('#message').val();
+                var userid = $('#userid').val();
+                //alert(message);
+                //var username= "DelJeet";
+
+               // socket.to('some room').emit();
+               var data ={username:username, message: message,userid:userid }
+                socket.emit('message', data); // Sends the message to the others
+                //insertMessage(username, message); // Also displays the message on our page
+                $('#message').val('').focus(); // Empties the chat form and puts the focus back on it
+                return false; // Blocks 'classic' sending of the form
+            });
+
+
+            // Adds a message to the page
+            function insertMessage(username, message,userid) {
+
+
+                $('#chat_zone').prepend('<p><strong>' + username + '</strong> ' + message +' with userid= ' +userid+'</p>' );
+
+            }
+                function chatMessage( message) {
+                $('#chat_zone').prepend('<p><strong>' + message + '</strong> </p>' );
+
+            }
+            function messageafterconnect(username,message){
+                 $('#chat_zone').prepend('<p><strong>' +username+ '</strong>'+message+ '</p>' );
+            }
+            function showusername(username,userid){
+             //   alert('');
+               //console.log(typeof username);
+        var filed;
+      
+filed='<li id="'+ userid +'" onclick="connectRoom('+userid+','+olduserid+')" >'+ username +'</li>';
+// console.log(filed);
+
+$('#users').append(filed);
+
+
+}
+
+//  function showusername(username,userid,olduserid){
+
+//                console.log(userid);
+//                console.log('okl');
+//                console.log(olduserid);
+//         var filed;
+//  $('#users').html();     
+// filed='<li id="'+ userid +'" onclick="connectRoom('+userid+','+olduserid+')" >'+ username +'</li>';
+// // console.log(filed);
+
+
+
+// if($('.users').first().text()!=filed){
+//     console.log('jj');
+// $('#users').append(filed);
+// }
+
+
+// //$('#users').show();
+
+//}
+  function connectRoom(userid,sendTo){
+                    var data;
+                if (userid<sendTo) {
+                    var room= userid+""+sendTo;
+                    console.log('jbehfj'+room);
+            
+                }else{
+                    var room= sendTo+""+userid;
+                     console.log ('mnbmbb0'+room);
+                     
+                }
+                data = {userData:"connect"+userid,room:room,userid:userid,sendTo:sendTo }
+               console.log(data);
+                 socket.emit('joinRoom',data); 
+             }
+
+
+                   function printMessage(data) {
+                $('#chat_zone').prepend('<p><strong>' + data + '</strong></p>');
+            }
+        </script>
+    </body>
+</html>
+
+
+
+
+
+
